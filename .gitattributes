@@ -1,0 +1,7 @@
+* text=auto
+
+*.sln        text eol=crlf
+*.vcxproj    text eol=crlf
+
+*.h          text working-tree-encoding=Windows-1251 git-encoding=utf-8
+*.cpp        text working-tree-encoding=Windows-1251 git-encoding=utf-8
