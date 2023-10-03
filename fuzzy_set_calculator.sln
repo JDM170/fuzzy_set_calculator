@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp1", "WindowsFormsApp1.csproj", "{4DD4B527-5B45-4DCB-A174-F82A583069B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fuzzy_set_calculator", "fuzzy_set_calculator.csproj", "{4DD4B527-5B45-4DCB-A174-F82A583069B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
