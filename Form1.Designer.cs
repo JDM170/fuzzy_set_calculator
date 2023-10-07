@@ -28,13 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series13 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint9 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 0D);
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint10 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 0D);
-            System.Windows.Forms.DataVisualization.Charting.Series series14 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series15 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint3 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 0D);
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint4 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 0D);
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -59,6 +59,12 @@
             this.del_by_name = new System.Windows.Forms.Button();
             this.clean_graph = new System.Windows.Forms.Button();
             this.compare = new System.Windows.Forms.Button();
+            this.com_greater = new System.Windows.Forms.Button();
+            this.com_less = new System.Windows.Forms.Button();
+            this.com_gore = new System.Windows.Forms.Button();
+            this.com_lore = new System.Windows.Forms.Button();
+            this.com_equal = new System.Windows.Forms.Button();
+            this.com_non_equal = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).BeginInit();
@@ -207,29 +213,29 @@
             // 
             // chart1
             // 
-            chartArea5.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.chart1.Legends.Add(legend5);
+            chartArea2.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart1.Legends.Add(legend2);
             this.chart1.Location = new System.Drawing.Point(380, 12);
             this.chart1.Name = "chart1";
-            series13.ChartArea = "ChartArea1";
-            series13.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series13.Legend = "Legend1";
-            series13.Name = "A1";
-            series13.Points.Add(dataPoint9);
-            series13.Points.Add(dataPoint10);
-            series14.ChartArea = "ChartArea1";
-            series14.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series14.Legend = "Legend1";
-            series14.Name = "B2";
-            series15.ChartArea = "ChartArea1";
-            series15.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series15.Legend = "Legend1";
-            series15.Name = "C3";
-            this.chart1.Series.Add(series13);
-            this.chart1.Series.Add(series14);
-            this.chart1.Series.Add(series15);
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.Name = "A1";
+            series4.Points.Add(dataPoint3);
+            series4.Points.Add(dataPoint4);
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series5.Legend = "Legend1";
+            series5.Name = "B2";
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Legend = "Legend1";
+            series6.Name = "C3";
+            this.chart1.Series.Add(series4);
+            this.chart1.Series.Add(series5);
+            this.chart1.Series.Add(series6);
             this.chart1.Size = new System.Drawing.Size(512, 440);
             this.chart1.TabIndex = 7;
             this.chart1.Text = "chart1";
@@ -293,19 +299,85 @@
             // 
             // compare
             // 
-            this.compare.Location = new System.Drawing.Point(712, 458);
+            this.compare.Location = new System.Drawing.Point(701, 458);
             this.compare.Name = "compare";
-            this.compare.Size = new System.Drawing.Size(155, 87);
+            this.compare.Size = new System.Drawing.Size(132, 31);
             this.compare.TabIndex = 14;
             this.compare.Text = "Сравнить";
             this.compare.UseVisualStyleBackColor = true;
             this.compare.Click += new System.EventHandler(this.compare_Click);
+            // 
+            // com_greater
+            // 
+            this.com_greater.Enabled = false;
+            this.com_greater.Location = new System.Drawing.Point(702, 496);
+            this.com_greater.Name = "com_greater";
+            this.com_greater.Size = new System.Drawing.Size(40, 23);
+            this.com_greater.TabIndex = 15;
+            this.com_greater.Text = ">";
+            this.com_greater.UseVisualStyleBackColor = true;
+            // 
+            // com_less
+            // 
+            this.com_less.Enabled = false;
+            this.com_less.Location = new System.Drawing.Point(702, 522);
+            this.com_less.Name = "com_less";
+            this.com_less.Size = new System.Drawing.Size(40, 23);
+            this.com_less.TabIndex = 16;
+            this.com_less.Text = "<";
+            this.com_less.UseVisualStyleBackColor = true;
+            // 
+            // com_gore
+            // 
+            this.com_gore.Enabled = false;
+            this.com_gore.Location = new System.Drawing.Point(747, 496);
+            this.com_gore.Name = "com_gore";
+            this.com_gore.Size = new System.Drawing.Size(40, 23);
+            this.com_gore.TabIndex = 17;
+            this.com_gore.Text = ">=";
+            this.com_gore.UseVisualStyleBackColor = true;
+            // 
+            // com_lore
+            // 
+            this.com_lore.Enabled = false;
+            this.com_lore.Location = new System.Drawing.Point(747, 522);
+            this.com_lore.Name = "com_lore";
+            this.com_lore.Size = new System.Drawing.Size(40, 23);
+            this.com_lore.TabIndex = 18;
+            this.com_lore.Text = "<=";
+            this.com_lore.UseVisualStyleBackColor = true;
+            // 
+            // com_equal
+            // 
+            this.com_equal.Enabled = false;
+            this.com_equal.Location = new System.Drawing.Point(793, 496);
+            this.com_equal.Name = "com_equal";
+            this.com_equal.Size = new System.Drawing.Size(40, 23);
+            this.com_equal.TabIndex = 19;
+            this.com_equal.Text = "=";
+            this.com_equal.UseVisualStyleBackColor = true;
+            // 
+            // com_non_equal
+            // 
+            this.com_non_equal.Enabled = false;
+            this.com_non_equal.Location = new System.Drawing.Point(793, 522);
+            this.com_non_equal.Name = "com_non_equal";
+            this.com_non_equal.Size = new System.Drawing.Size(40, 23);
+            this.com_non_equal.TabIndex = 20;
+            this.com_non_equal.Text = "/=";
+            this.com_non_equal.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(904, 576);
+            this.Controls.Add(this.com_non_equal);
+            this.Controls.Add(this.com_equal);
+            this.Controls.Add(this.com_lore);
+            this.Controls.Add(this.com_gore);
+            this.Controls.Add(this.com_less);
+            this.Controls.Add(this.com_greater);
             this.Controls.Add(this.compare);
             this.Controls.Add(this.clean_graph);
             this.Controls.Add(this.del_by_name);
@@ -360,6 +432,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column8;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column9;
         private System.Windows.Forms.Button compare;
+        private System.Windows.Forms.Button com_greater;
+        private System.Windows.Forms.Button com_less;
+        private System.Windows.Forms.Button com_gore;
+        private System.Windows.Forms.Button com_lore;
+        private System.Windows.Forms.Button com_equal;
+        private System.Windows.Forms.Button com_non_equal;
     }
 }
 

@@ -16,9 +16,11 @@ namespace WindowsFormsApp1
             InitializeComponent();
         }
 
+        // Конвертирование объекта в double
         private double ConvertDGValue(object value)
         { return Convert.ToDouble(value); }
 
+        // Преобразование dataGridView в матрицу
         private double[,] ConvertDGtoMatrix(DataGridView dgv)
         {
             int rowCount = dgv.Rows.Count,
@@ -30,6 +32,7 @@ namespace WindowsFormsApp1
             return matrix;
         }
 
+        // Сортировка матрицы по возрастанию альфа-среза
         private double[,] SortMatrix(double[,] matrix)
         {
             int rowCount = matrix.GetLength(1),
@@ -47,6 +50,7 @@ namespace WindowsFormsApp1
             return matrix;
         }
 
+        // Вычисление неизвестного альфа-среза
         private Tuple<double[,], double[,]> GetUnknownAlpha(double[,] matrix1, double[,] matrix2)
         {
             double[,] matrix_low, matrix_high;
@@ -83,7 +87,6 @@ namespace WindowsFormsApp1
                 }
                 wrong = 0;
             }
-
             matrix3 = SortMatrix(matrix3);
             int minCoord = 0, maxCoord = 0;
             double k, b;
@@ -104,10 +107,10 @@ namespace WindowsFormsApp1
                     matrix3[2, i] = -(b - matrix3[0, i]) / k;
                 }
             }
-
             return Tuple.Create(matrix3, matrix_high);
         }
 
+        // Вывод графика
         private void PrintGraph(double[,] matrix, string chart_series)
         {
             DataPointCollection points = chart1.Series.FindByName(chart_series).Points;
@@ -127,8 +130,8 @@ namespace WindowsFormsApp1
 
             dataGridView2.Rows.Add(new object[] { 0, 1, 9 });
             dataGridView2.Rows.Add(new object[] { 0.5, 3, 6 });
-            dataGridView2.Rows.Add(new object[] { 0.2, 2, 7 });
             dataGridView2.Rows.Add(new object[] { 1, 4, 5 });
+            dataGridView2.Rows.Add(new object[] { 0.2, 2, 7 });
 
             /*double[,] matrix = ConvertDGtoMatrix(dataGridView2);
             for (int row = 0; row < matrix.GetLength(1); row++)
@@ -259,7 +262,52 @@ namespace WindowsFormsApp1
 
         private void compare_Click(object sender, EventArgs e)
         {
-            // compare
+            double[,] matrixA = SortMatrix(ConvertDGtoMatrix(dataGridView1)),
+                matrixB = SortMatrix(ConvertDGtoMatrix(dataGridView2));
+            int matrixARowCount = matrixA.GetLength(1),
+                matrixBRowCount = matrixB.GetLength(1);
+            double matrixASum = 0, matrixBSum = 0;
+            for (int i = 0; i < matrixARowCount; i++)
+                matrixASum += matrixA[1, i] + matrixA[2, i];
+            matrixASum = matrixASum / matrixARowCount;
+            for (int i = 0; i < matrixBRowCount; i++)
+                matrixBSum += matrixB[1, i] + matrixB[2, i];
+            matrixBSum = matrixBSum / matrixBRowCount;
+            if (matrixASum > matrixBSum)
+            {
+                com_greater.BackColor = Color.Green;
+                com_less.BackColor = Color.Red;
+            }
+            else
+            {
+                com_greater.BackColor = Color.Red;
+                com_less.BackColor = Color.Green;
+            }
+            if (matrixASum >= matrixBSum)
+            {
+                com_gore.BackColor = Color.Green;
+                com_lore.BackColor = Color.Red;
+            }
+            else
+            {
+                com_gore.BackColor = Color.Red;
+                com_lore.BackColor = Color.Green;
+            }
+            if (matrixASum == matrixBSum)
+            {
+                com_equal.BackColor = Color.Green;
+                com_non_equal.BackColor = Color.Red;
+            }
+            else
+            {
+                com_equal.BackColor = Color.Red;
+                com_non_equal.BackColor = Color.Green;
+            }
+            chart1.Series.FindByName("A1").Points.Clear();
+            chart1.Series.FindByName("B2").Points.Clear();
+            chart1.Series.FindByName("C3").Points.Clear();
+            PrintGraph(matrixA, "A1");
+            PrintGraph(matrixB, "B2");
         }
     }
 }
