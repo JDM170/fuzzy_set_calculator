@@ -47,7 +47,7 @@ namespace WindowsFormsApp1
             return matrix;
         }
 
-        private Tuple<double[,], double[,]> getUnknownAlpha(double[,] matrix1, double[,] matrix2)
+        private Tuple<double[,], double[,]> GetUnknownAlpha(double[,] matrix1, double[,] matrix2)
         {
             double[,] matrix_low, matrix_high;
             if(matrix1.GetLength(1) < matrix2.GetLength(1))
@@ -143,7 +143,7 @@ namespace WindowsFormsApp1
         {
             double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
             matrix_low = tuple.Item1;
             matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
@@ -162,7 +162,7 @@ namespace WindowsFormsApp1
         {
             double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
             matrix_low = tuple.Item1;
             matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
@@ -181,7 +181,7 @@ namespace WindowsFormsApp1
         {
             double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
             matrix_low = tuple.Item1;
             matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
@@ -200,7 +200,7 @@ namespace WindowsFormsApp1
         {
             double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
             matrix_low = tuple.Item1;
             matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
