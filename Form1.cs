@@ -19,33 +19,6 @@ namespace WindowsFormsApp1
         private double ConvertDGValue(object value)
         { return Convert.ToDouble(value); }
 
-        private void MergeDGs()
-        {
-            DataGridView matrix_low, matrix_high;
-            if (dataGridView1.Rows.Count < dataGridView2.Rows.Count)
-            {
-                matrix_low = dataGridView1;
-                matrix_high = dataGridView2;
-            }
-            else
-            {
-                matrix_low = dataGridView2;
-                matrix_high = dataGridView1;
-            }
-            int lowRowCount = matrix_low.Rows.Count,
-                highRowCount = matrix_high.Rows.Count;
-            int wrong = 0;
-            for (int first = 0; first < highRowCount; first++)
-            {
-                for (int second = 0; second < lowRowCount; second++)
-                    if (ConvertDGValue(matrix_low[0, second].Value) != ConvertDGValue(matrix_high[0, first].Value))
-                        wrong++;
-                if (wrong > lowRowCount - 1)
-                    dataGridView3.Rows.Add(new object[] { matrix_high[0, first].Value, matrix_high[1, first].Value, matrix_high[2, first].Value });
-                wrong = 0;
-            }
-        }
-
         private double[,] ConvertDGtoMatrix(DataGridView dgv)
         {
             int rowCount = dgv.Rows.Count,
@@ -74,13 +47,75 @@ namespace WindowsFormsApp1
             return matrix;
         }
 
+        private Tuple<double[,], double[,]> getUnknownAlpha(double[,] matrix1, double[,] matrix2)
+        {
+            double[,] matrix_low, matrix_high;
+            if(matrix1.GetLength(1) < matrix2.GetLength(1))
+            {
+                matrix_low = matrix1;
+                matrix_high = matrix2;
+            }
+            else
+            {
+                matrix_low = matrix2;
+                matrix_high = matrix1;
+            }
+            int colCount = matrix_low.GetLength(0),
+                lowRowCount = matrix_low.GetLength(1),
+                highRowCount = matrix_high.GetLength(1),
+                wrong = 0,
+                offsetNew = 0;
+            double[,] matrix3 = new double[colCount, highRowCount];
+            for (int row = 0; row < lowRowCount; row++)
+                for (int col = 0; col < colCount; col++)
+                    matrix3[col, row] = matrix_low[col, row];
+            for (int high = 0; high < highRowCount; high++)
+            {
+                for (int low = 0; low < lowRowCount; low++)
+                    if (matrix_low[0, low] != matrix_high[0, high])
+                        wrong++;
+                if (wrong > lowRowCount - 1)
+                {
+                    matrix3[0, lowRowCount + offsetNew] = matrix_high[0, high];
+                    matrix3[1, lowRowCount + offsetNew] = 0;
+                    matrix3[2, lowRowCount + offsetNew] = 0;
+                    offsetNew++;
+                }
+                wrong = 0;
+            }
+
+            matrix3 = SortMatrix(matrix3);
+            int minCoord = 0, maxCoord = 0;
+            double k, b;
+            for (int i = 0; i < highRowCount; i++)
+            {
+                if (matrix3[1, i] == 0 && matrix3[2, i] == 0)
+                {
+                    minCoord = i - 1;
+                    maxCoord = i + 1;
+                    // k = (y2 - y1) / (x2 - x1);
+                    // b = (x2 * y1 - x1 * y2) / (x2 - x1);
+                    k = (matrix3[0, maxCoord] - matrix3[0, minCoord]) / (matrix3[1, maxCoord] - matrix3[1, minCoord]);
+                    b = (matrix3[1, maxCoord] * matrix3[0, minCoord] - matrix3[1, minCoord] * matrix3[0, maxCoord]) / (matrix3[1, maxCoord] - matrix3[1, minCoord]);
+                    matrix3[1, i] = -(b - matrix3[0, i]) / k;
+
+                    k = (matrix3[0, maxCoord] - matrix3[0, minCoord]) / (matrix3[2, maxCoord] - matrix3[2, minCoord]);
+                    b = (matrix3[2, maxCoord] * matrix3[0, minCoord] - matrix3[2, minCoord] * matrix3[0, maxCoord]) / (matrix3[2, maxCoord] - matrix3[2, minCoord]);
+                    matrix3[2, i] = -(b - matrix3[0, i]) / k;
+                }
+            }
+
+            return Tuple.Create(matrix3, matrix_high);
+        }
+
         private void PrintGraph(double[,] matrix, string chart_series)
         {
             DataPointCollection points = chart1.Series.FindByName(chart_series).Points;
             int matrixLength = matrix.GetLength(1);
+            points.Clear();
             for (int row = 0; row < matrixLength; row++)
                 points.AddXY(matrix[1, row], matrix[0, row]);
-            for(int row = matrixLength - 1; row >= 0; row--)
+            for (int row = matrixLength - 1; row >= 0; row--)
                 points.AddXY(matrix[2, row], matrix[0, row]);
         }
 
@@ -95,17 +130,6 @@ namespace WindowsFormsApp1
             dataGridView2.Rows.Add(new object[] { 0.2, 2, 7 });
             dataGridView2.Rows.Add(new object[] { 1, 4, 5 });
 
-            /*// Simple merging
-            if(dataGridView2.Rows.Count > dataGridView1.Rows.Count)
-            {
-                for(int row = dataGridView1.Rows.Count; row < dataGridView2.Rows.Count; row++)
-                {
-                    dataGridView3.RowCount++;
-                    for(int col = 0; col < dataGridView1.Columns.Count; col++)
-                        dataGridView3[col, row].Value = ConvertDGValue(dataGridView2[col, row].Value);
-                }
-            }*/
-
             /*double[,] matrix = ConvertDGtoMatrix(dataGridView2);
             for (int row = 0; row < matrix.GetLength(1); row++)
             {
@@ -117,17 +141,11 @@ namespace WindowsFormsApp1
 
         private void addition_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low, matrix_high;
-            if (dataGridView1.Rows.Count < dataGridView2.Rows.Count)
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView1);
+            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            }
-            else
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView2);
-                matrix_high = ConvertDGtoMatrix(dataGridView1);
-            }
+            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            matrix_low = tuple.Item1;
+            matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
             for (int high = 0; high < matrix_high.GetLength(1); high++)
                 for (int low = 0; low < matrix_low.GetLength(1); low++)
@@ -138,22 +156,15 @@ namespace WindowsFormsApp1
                             matrix_low[1, low] + matrix_high[1, high],
                             matrix_low[2, low] + matrix_high[2, high]
                         });
-            MergeDGs();
         }
 
         private void subtraction_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low, matrix_high;
-            if (dataGridView1.Rows.Count < dataGridView2.Rows.Count)
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView1);
+            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            }
-            else
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView2);
-                matrix_high = ConvertDGtoMatrix(dataGridView1);
-            }
+            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            matrix_low = tuple.Item1;
+            matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
             for (int high = 0; high < matrix_high.GetLength(1); high++)
                 for (int low = 0; low < matrix_low.GetLength(1); low++)
@@ -164,22 +175,15 @@ namespace WindowsFormsApp1
                             matrix_low[1, low] - matrix_high[2, high],
                             matrix_low[2, low] - matrix_high[1, high]
                         });
-            MergeDGs();
         }
 
         private void multiply_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low, matrix_high;
-            if (dataGridView1.Rows.Count < dataGridView2.Rows.Count)
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView1);
+            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            }
-            else
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView2);
-                matrix_high = ConvertDGtoMatrix(dataGridView1);
-            }
+            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            matrix_low = tuple.Item1;
+            matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
             for (int high = 0; high < matrix_high.GetLength(1); high++)
                 for (int low = 0; low < matrix_low.GetLength(1); low++)
@@ -190,33 +194,36 @@ namespace WindowsFormsApp1
                             matrix_low[1, low] * matrix_high[1, high],
                             matrix_low[2, low] * matrix_high[2, high]
                         });
-            MergeDGs();
         }
 
         private void divide_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low, matrix_high;
-            if (dataGridView1.Rows.Count < dataGridView2.Rows.Count)
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView1);
+            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
                 matrix_high = ConvertDGtoMatrix(dataGridView2);
-            }
-            else
-            {
-                matrix_low = ConvertDGtoMatrix(dataGridView2);
-                matrix_high = ConvertDGtoMatrix(dataGridView1);
-            }
+            Tuple<double[,], double[,]> tuple = getUnknownAlpha(matrix_low, matrix_high);
+            matrix_low = tuple.Item1;
+            matrix_high = tuple.Item2;
             dataGridView3.Rows.Clear();
             for (int high = 0; high < matrix_high.GetLength(1); high++)
                 for (int low = 0; low < matrix_low.GetLength(1); low++)
                     if (matrix_low[0, low] == matrix_high[0, high])
-                        dataGridView3.Rows.Add(new object[]
+                    {
+                        if (matrix_high[1, high] > 0 && matrix_high[2, high] > 0)
                         {
-                            matrix_high[0, high],
-                            matrix_low[1, low] / matrix_high[2, high],
-                            matrix_low[2, low] / matrix_high[1, high]
-                        });
-            MergeDGs();
+                            dataGridView3.Rows.Add(new object[]
+                            {
+                                matrix_high[0, high],
+                                matrix_low[1, low] / matrix_high[2, high],
+                                matrix_low[2, low] / matrix_high[1, high]
+                            });
+                        }
+                        else
+                        {
+                            dataGridView3.Rows.Clear();
+                            MessageBox.Show("Деление на 0 невозможно. Задайте другое значение!");
+                            return;
+                        }
+                    }
         }
 
         private void build_a_Click(object sender, EventArgs e)
@@ -248,6 +255,11 @@ namespace WindowsFormsApp1
             chart1.Series.FindByName("A1").Points.Clear();
             chart1.Series.FindByName("B2").Points.Clear();
             chart1.Series.FindByName("C3").Points.Clear();
+        }
+
+        private void compare_Click(object sender, EventArgs e)
+        {
+            // compare
         }
     }
 }
