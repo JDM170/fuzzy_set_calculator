@@ -26,9 +26,9 @@ namespace WindowsFormsApp1
             int rowCount = dgv.Rows.Count,
                 colCount = dgv.Columns.Count;
             double[,] matrix = new double[colCount, rowCount];
-            for (int i = 0; i < rowCount; i++)
-                for (int j = 0; j < colCount; j++)
-                    matrix[j, i] = ConvertDGValue(dgv[j, i].Value);
+            for (int row = 0; row < rowCount; row++)
+                for (int col = 0; col < colCount; col++)
+                    matrix[col, row] = ConvertDGValue(dgv[col, row].Value);
             return matrix;
         }
 
@@ -51,28 +51,28 @@ namespace WindowsFormsApp1
         }
 
         // Вычисление неизвестного альфа-среза
-        private Tuple<double[,], double[,]> GetUnknownAlpha(double[,] matrix1, double[,] matrix2)
+        private Tuple<double[,], double[,]> GetUnknownAlpha(double[,] matrixA, double[,] matrixB)
         {
             double[,] matrix_low, matrix_high;
-            if(matrix1.GetLength(1) < matrix2.GetLength(1))
+            if(matrixA.GetLength(1) < matrixB.GetLength(1))
             {
-                matrix_low = matrix1;
-                matrix_high = matrix2;
+                matrix_low = matrixA;
+                matrix_high = matrixB;
             }
             else
             {
-                matrix_low = matrix2;
-                matrix_high = matrix1;
+                matrix_low = matrixB;
+                matrix_high = matrixA;
             }
             int colCount = matrix_low.GetLength(0),
                 lowRowCount = matrix_low.GetLength(1),
                 highRowCount = matrix_high.GetLength(1),
                 wrong = 0,
                 offsetNew = 0;
-            double[,] matrix3 = new double[colCount, highRowCount];
+            double[,] matrixC = new double[colCount, highRowCount];
             for (int row = 0; row < lowRowCount; row++)
                 for (int col = 0; col < colCount; col++)
-                    matrix3[col, row] = matrix_low[col, row];
+                    matrixC[col, row] = matrix_low[col, row];
             for (int high = 0; high < highRowCount; high++)
             {
                 for (int low = 0; low < lowRowCount; low++)
@@ -80,34 +80,35 @@ namespace WindowsFormsApp1
                         wrong++;
                 if (wrong > lowRowCount - 1)
                 {
-                    matrix3[0, lowRowCount + offsetNew] = matrix_high[0, high];
-                    matrix3[1, lowRowCount + offsetNew] = 0;
-                    matrix3[2, lowRowCount + offsetNew] = 0;
+                    matrixC[0, lowRowCount + offsetNew] = matrix_high[0, high];
+                    matrixC[1, lowRowCount + offsetNew] = 0;
+                    matrixC[2, lowRowCount + offsetNew] = 0;
                     offsetNew++;
                 }
                 wrong = 0;
             }
-            matrix3 = SortMatrix(matrix3);
+            matrixC = SortMatrix(matrixC);
             int minCoord = 0, maxCoord = 0;
             double k, b;
             for (int i = 0; i < highRowCount; i++)
             {
-                if (matrix3[1, i] == 0 && matrix3[2, i] == 0)
+                if (matrixC[1, i] == 0 && matrixC[2, i] == 0)
                 {
                     minCoord = i - 1;
                     maxCoord = i + 1;
                     // k = (y2 - y1) / (x2 - x1);
                     // b = (x2 * y1 - x1 * y2) / (x2 - x1);
-                    k = (matrix3[0, maxCoord] - matrix3[0, minCoord]) / (matrix3[1, maxCoord] - matrix3[1, minCoord]);
-                    b = (matrix3[1, maxCoord] * matrix3[0, minCoord] - matrix3[1, minCoord] * matrix3[0, maxCoord]) / (matrix3[1, maxCoord] - matrix3[1, minCoord]);
-                    matrix3[1, i] = -(b - matrix3[0, i]) / k;
-
-                    k = (matrix3[0, maxCoord] - matrix3[0, minCoord]) / (matrix3[2, maxCoord] - matrix3[2, minCoord]);
-                    b = (matrix3[2, maxCoord] * matrix3[0, minCoord] - matrix3[2, minCoord] * matrix3[0, maxCoord]) / (matrix3[2, maxCoord] - matrix3[2, minCoord]);
-                    matrix3[2, i] = -(b - matrix3[0, i]) / k;
+                    // нижняя граница
+                    k = (matrixC[0, maxCoord] - matrixC[0, minCoord]) / (matrixC[1, maxCoord] - matrixC[1, minCoord]);
+                    b = (matrixC[1, maxCoord] * matrixC[0, minCoord] - matrixC[1, minCoord] * matrixC[0, maxCoord]) / (matrixC[1, maxCoord] - matrixC[1, minCoord]);
+                    matrixC[1, i] = -(b - matrixC[0, i]) / k;
+                    // верхняя граница
+                    k = (matrixC[0, maxCoord] - matrixC[0, minCoord]) / (matrixC[2, maxCoord] - matrixC[2, minCoord]);
+                    b = (matrixC[2, maxCoord] * matrixC[0, minCoord] - matrixC[2, minCoord] * matrixC[0, maxCoord]) / (matrixC[2, maxCoord] - matrixC[2, minCoord]);
+                    matrixC[2, i] = -(b - matrixC[0, i]) / k;
                 }
             }
-            return Tuple.Create(matrix3, matrix_high);
+            return Tuple.Create(matrixC, matrix_high);
         }
 
         // Вывод графика
@@ -144,80 +145,76 @@ namespace WindowsFormsApp1
 
         private void addition_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
-                matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
-            matrix_low = tuple.Item1;
-            matrix_high = tuple.Item2;
+            double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
+                matrixB = ConvertDGtoMatrix(dataGridView2);
+            GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
-            for (int high = 0; high < matrix_high.GetLength(1); high++)
-                for (int low = 0; low < matrix_low.GetLength(1); low++)
-                    if (matrix_low[0, low] == matrix_high[0, high])
+            int matrixLength = matrixA.GetLength(1);
+            for (int a = 0; a < matrixLength; a++)
+                for (int b = 0; b < matrixLength; b++)
+                    if (matrixA[0, a] == matrixB[0, b])
                         dataGridView3.Rows.Add(new object[]
                         {
-                            matrix_high[0, high],
-                            matrix_low[1, low] + matrix_high[1, high],
-                            matrix_low[2, low] + matrix_high[2, high]
+                            matrixA[0, a],
+                            matrixA[1, a] + matrixB[1, b],
+                            matrixA[2, a] + matrixB[2, b]
                         });
         }
 
         private void subtraction_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
-                matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
-            matrix_low = tuple.Item1;
-            matrix_high = tuple.Item2;
+            double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
+                matrixB = ConvertDGtoMatrix(dataGridView2);
+            GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
-            for (int high = 0; high < matrix_high.GetLength(1); high++)
-                for (int low = 0; low < matrix_low.GetLength(1); low++)
-                    if (matrix_low[0, low] == matrix_high[0, high])
+            int matrixLength = matrixA.GetLength(1);
+            for (int a = 0; a < matrixLength; a++)
+                for (int b = 0; b < matrixLength; b++)
+                    if (matrixA[0, a] == matrixB[0, b])
                         dataGridView3.Rows.Add(new object[]
                         {
-                            matrix_high[0, high],
-                            matrix_low[1, low] - matrix_high[2, high],
-                            matrix_low[2, low] - matrix_high[1, high]
+                            matrixA[0, a],
+                            matrixA[1, a] - matrixB[2, b],
+                            matrixA[2, a] - matrixB[1, b]
                         });
         }
 
         private void multiply_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
-                matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
-            matrix_low = tuple.Item1;
-            matrix_high = tuple.Item2;
+            double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
+                matrixB = ConvertDGtoMatrix(dataGridView2);
+            GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
-            for (int high = 0; high < matrix_high.GetLength(1); high++)
-                for (int low = 0; low < matrix_low.GetLength(1); low++)
-                    if (matrix_low[0, low] == matrix_high[0, high])
+            int matrixLength = matrixA.GetLength(1);
+            for (int a = 0; a < matrixLength; a++)
+                for (int b = 0; b < matrixLength; b++)
+                    if (matrixA[0, a] == matrixB[0, b])
                         dataGridView3.Rows.Add(new object[]
                         {
-                            matrix_high[0, high],
-                            matrix_low[1, low] * matrix_high[1, high],
-                            matrix_low[2, low] * matrix_high[2, high]
+                            matrixA[0, a],
+                            matrixA[1, a] * matrixB[1, b],
+                            matrixA[2, a] * matrixB[2, b]
                         });
         }
 
         private void divide_Click(object sender, EventArgs e)
         {
-            double[,] matrix_low = ConvertDGtoMatrix(dataGridView1),
-                matrix_high = ConvertDGtoMatrix(dataGridView2);
-            Tuple<double[,], double[,]> tuple = GetUnknownAlpha(matrix_low, matrix_high);
-            matrix_low = tuple.Item1;
-            matrix_high = tuple.Item2;
+            double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
+                matrixB = ConvertDGtoMatrix(dataGridView2);
+            GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
-            for (int high = 0; high < matrix_high.GetLength(1); high++)
-                for (int low = 0; low < matrix_low.GetLength(1); low++)
-                    if (matrix_low[0, low] == matrix_high[0, high])
+            int matrixLength = matrixA.GetLength(1);
+            for (int a = 0; a < matrixLength; a++)
+                for (int b = 0; b < matrixLength; b++)
+                    if (matrixA[0, a] == matrixB[0, b])
                     {
-                        if (matrix_high[1, high] > 0 && matrix_high[2, high] > 0)
+                        if (matrixB[1, b] > 0 && matrixB[2, b] > 0)
                         {
                             dataGridView3.Rows.Add(new object[]
                             {
-                                matrix_high[0, high],
-                                matrix_low[1, low] / matrix_high[2, high],
-                                matrix_low[2, low] / matrix_high[1, high]
+                                matrixA[0, a],
+                                matrixA[1, a] / matrixB[2, b],
+                                matrixA[2, a] / matrixB[1, b]
                             });
                         }
                         else
@@ -231,26 +228,24 @@ namespace WindowsFormsApp1
 
         private void build_a_Click(object sender, EventArgs e)
         {
-            double[,] matrix = SortMatrix(ConvertDGtoMatrix(dataGridView1));
-            PrintGraph(matrix, "A1");
+            PrintGraph(SortMatrix(ConvertDGtoMatrix(dataGridView1)), "A1");
         }
 
         private void build_b_Click(object sender, EventArgs e)
         {
-            double[,] matrix = SortMatrix(ConvertDGtoMatrix(dataGridView2));
-            PrintGraph(matrix, "B2");
+            PrintGraph(SortMatrix(ConvertDGtoMatrix(dataGridView2)), "B2");
         }
 
         private void build_c_Click(object sender, EventArgs e)
         {
-            double[,] matrix = SortMatrix(ConvertDGtoMatrix(dataGridView3));
-            PrintGraph(matrix, "C3");
+            PrintGraph(SortMatrix(ConvertDGtoMatrix(dataGridView3)), "C3");
         }
 
         private void del_by_name_Click(object sender, EventArgs e)
         {
             string text = textBox1.Text;
-            chart1.Series.FindByName(text).Points.Clear();
+            if (text != "")
+                chart1.Series.FindByName(text).Points.Clear();
         }
 
         private void clean_graph_Click(object sender, EventArgs e)
@@ -264,16 +259,16 @@ namespace WindowsFormsApp1
         {
             double[,] matrixA = SortMatrix(ConvertDGtoMatrix(dataGridView1)),
                 matrixB = SortMatrix(ConvertDGtoMatrix(dataGridView2));
-            int matrixARowCount = matrixA.GetLength(1),
-                matrixBRowCount = matrixB.GetLength(1);
-            double matrixASum = 0, matrixBSum = 0;
-            for (int i = 0; i < matrixARowCount; i++)
-                matrixASum += matrixA[1, i] + matrixA[2, i];
-            matrixASum = matrixASum / matrixARowCount;
-            for (int i = 0; i < matrixBRowCount; i++)
-                matrixBSum += matrixB[1, i] + matrixB[2, i];
-            matrixBSum = matrixBSum / matrixBRowCount;
-            if (matrixASum > matrixBSum)
+            int aRowCount = matrixA.GetLength(1),
+                bRowCount = matrixB.GetLength(1);
+            double aSum = 0, bSum = 0;
+            for (int i = 0; i < aRowCount; i++)
+                aSum += matrixA[1, i] + matrixA[2, i];
+            aSum /= aRowCount;
+            for (int i = 0; i < bRowCount; i++)
+                bSum += matrixB[1, i] + matrixB[2, i];
+            bSum /= bRowCount;
+            if (aSum > bSum)
             {
                 com_greater.BackColor = Color.Green;
                 com_less.BackColor = Color.Red;
@@ -283,7 +278,7 @@ namespace WindowsFormsApp1
                 com_greater.BackColor = Color.Red;
                 com_less.BackColor = Color.Green;
             }
-            if (matrixASum >= matrixBSum)
+            if (aSum >= bSum)
             {
                 com_gore.BackColor = Color.Green;
                 com_lore.BackColor = Color.Red;
@@ -293,7 +288,7 @@ namespace WindowsFormsApp1
                 com_gore.BackColor = Color.Red;
                 com_lore.BackColor = Color.Green;
             }
-            if (matrixASum == matrixBSum)
+            if (aSum == bSum)
             {
                 com_equal.BackColor = Color.Green;
                 com_non_equal.BackColor = Color.Red;
