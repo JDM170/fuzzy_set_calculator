@@ -123,8 +123,35 @@ namespace WindowsFormsApp1
                 points.AddXY(matrix[2, row], matrix[0, row]);
         }
 
+        // Сравнение нижних и верхних значений
+        bool compareLowHighValues(double[,] matrix)
+        {
+            for(int i = 0; i < matrix.GetLength(1); i++)
+                if (matrix[1, i] > matrix[2, i])
+                    return false;
+            return true;
+        }
+
+        bool compareAlphaLowHigh(double[,] matrix)
+        {
+            matrix = SortMatrix(matrix);
+            for(int i = 1; i < matrix.GetLength(1); i++)
+                if (matrix[1, i] < matrix[1, i-1] || matrix[2, i] > matrix[2, i-1])
+                    return false;
+            return true;
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            //dataGridView1.Rows.Add(new object[] { 0, 1, 9 });
+            //dataGridView1.Rows.Add(new object[] { 0.5, 2, 8 });
+            //dataGridView1.Rows.Add(new object[] { 1, 3, 4 });
+
+            //dataGridView2.Rows.Add(new object[] { 0, 1, 9 });
+            //dataGridView2.Rows.Add(new object[] { 0.5, 3, 6 });
+            //dataGridView2.Rows.Add(new object[] { 1, 4, 5 });
+            //dataGridView2.Rows.Add(new object[] { 0.2, 2, 7 });
+
             dataGridView1.Rows.Add(new object[] { 0, 1, 9 });
             dataGridView1.Rows.Add(new object[] { 0.5, 2, 8 });
             dataGridView1.Rows.Add(new object[] { 1, 3, 4 });
@@ -147,6 +174,16 @@ namespace WindowsFormsApp1
         {
             double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
                 matrixB = ConvertDGtoMatrix(dataGridView2);
+            if (!compareLowHighValues(matrixA) || !compareLowHighValues(matrixB))
+            {
+                MessageBox.Show("Нижнее значение не может быть больше верхнего!");
+                return;
+            }
+            if (!compareAlphaLowHigh(matrixA) || !compareAlphaLowHigh(matrixB))
+            {
+                MessageBox.Show("Некорректное значение");
+                return;
+            }
             GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
             int matrixLength = matrixA.GetLength(1);
@@ -165,6 +202,16 @@ namespace WindowsFormsApp1
         {
             double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
                 matrixB = ConvertDGtoMatrix(dataGridView2);
+            if (!compareLowHighValues(matrixA) || !compareLowHighValues(matrixB))
+            {
+                MessageBox.Show("Нижнее значение не может быть больше верхнего!");
+                return;
+            }
+            if (!compareAlphaLowHigh(matrixA) || !compareAlphaLowHigh(matrixB))
+            {
+                MessageBox.Show("Некорректное значение");
+                return;
+            }
             GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
             int matrixLength = matrixA.GetLength(1);
@@ -183,6 +230,16 @@ namespace WindowsFormsApp1
         {
             double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
                 matrixB = ConvertDGtoMatrix(dataGridView2);
+            if (!compareLowHighValues(matrixA) || !compareLowHighValues(matrixB))
+            {
+                MessageBox.Show("Нижнее значение не может быть больше верхнего!");
+                return;
+            }
+            if (!compareAlphaLowHigh(matrixA) || !compareAlphaLowHigh(matrixB))
+            {
+                MessageBox.Show("Некорректное значение");
+                return;
+            }
             GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
             int matrixLength = matrixA.GetLength(1);
@@ -201,6 +258,16 @@ namespace WindowsFormsApp1
         {
             double[,] matrixA = ConvertDGtoMatrix(dataGridView1),
                 matrixB = ConvertDGtoMatrix(dataGridView2);
+            if (!compareLowHighValues(matrixA) || !compareLowHighValues(matrixB))
+            {
+                MessageBox.Show("Нижнее значение не может быть больше верхнего!");
+                return;
+            }
+            if (!compareAlphaLowHigh(matrixA) || !compareAlphaLowHigh(matrixB))
+            {
+                MessageBox.Show("Некорректное значение");
+                return;
+            }
             GetUnknownAlpha(matrixA, matrixB).Deconstruct(out matrixA, out matrixB);
             dataGridView3.Rows.Clear();
             int matrixLength = matrixA.GetLength(1);
@@ -226,19 +293,44 @@ namespace WindowsFormsApp1
                     }
         }
 
-        private void build_a_Click(object sender, EventArgs e)
+        private void build_graph_Click(object sender, EventArgs e)
         {
-            PrintGraph(SortMatrix(ConvertDGtoMatrix(dataGridView1)), "A1");
-        }
-
-        private void build_b_Click(object sender, EventArgs e)
-        {
-            PrintGraph(SortMatrix(ConvertDGtoMatrix(dataGridView2)), "B2");
-        }
-
-        private void build_c_Click(object sender, EventArgs e)
-        {
-            PrintGraph(SortMatrix(ConvertDGtoMatrix(dataGridView3)), "C3");
+            DataGridView selected_dgv = null;
+            string selected_graph = "";
+            switch ((sender as Button).Name)
+            {
+                case "build_a":
+                {
+                    selected_dgv = dataGridView1;
+                    selected_graph = "A1";
+                    break;
+                }
+                case "build_b":
+                {
+                    selected_dgv = dataGridView2;
+                    selected_graph = "B2";
+                    break;
+                }
+                case "build_c":
+                {
+                    selected_dgv = dataGridView3;
+                    selected_graph = "C3";
+                    break;
+                }
+                default: break;
+            }
+            double[,] matrix = SortMatrix(ConvertDGtoMatrix(selected_dgv));
+            if (!compareLowHighValues(matrix))
+            {
+                MessageBox.Show("Нижнее значение не может быть больше верхнего!");
+                return;
+            }
+            if (!compareAlphaLowHigh(matrix))
+            {
+                MessageBox.Show("Некорректное значение");
+                return;
+            }
+            PrintGraph(matrix, selected_graph);
         }
 
         private void del_by_name_Click(object sender, EventArgs e)

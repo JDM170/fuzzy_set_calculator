@@ -248,7 +248,7 @@
             this.build_a.TabIndex = 8;
             this.build_a.Text = "Построить A";
             this.build_a.UseVisualStyleBackColor = true;
-            this.build_a.Click += new System.EventHandler(this.build_a_Click);
+            this.build_a.Click += new System.EventHandler(this.build_graph_Click);
             // 
             // build_b
             // 
@@ -258,7 +258,7 @@
             this.build_b.TabIndex = 9;
             this.build_b.Text = "Построить B";
             this.build_b.UseVisualStyleBackColor = true;
-            this.build_b.Click += new System.EventHandler(this.build_b_Click);
+            this.build_b.Click += new System.EventHandler(this.build_graph_Click);
             // 
             // build_c
             // 
@@ -268,7 +268,7 @@
             this.build_c.TabIndex = 10;
             this.build_c.Text = "Построить C";
             this.build_c.UseVisualStyleBackColor = true;
-            this.build_c.Click += new System.EventHandler(this.build_c_Click);
+            this.build_c.Click += new System.EventHandler(this.build_graph_Click);
             // 
             // textBox1
             // 
